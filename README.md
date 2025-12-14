@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## AiLi — Popular-Figure SMS Short-Form Group Chat
 
-## Getting Started
+This repo implements AiLi’s provisional-patent messaging lab: a closed SMS interface where three licensed celebrity personas (Pharrell Williams, Tyler, The Creator, and Rihanna) reply directly to a user. Every response follows the patent constraints—one-to-many attention, mathematically distinct personas, SMS brevity, and a tri-modal blend of social, creative, and educational value. The product surface is intentionally minimal: only the SMS experience and the Library (persona catalog).
 
-First, run the development server:
+### Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Three-celebrity limit:** Pharrell, Tyler, and Rihanna are hard-coded responders who never converse with each other.
+- **Persona weighting:** Each agent carries an explicit weight vector (humor, brevity, metaphor rate, etc.) to guarantee Euclidean separation ≥ 0.35, honoring the mathematical distinctiveness clause.
+- **SMS presentation:** 280-character cap, staggered message bubbles, and patent callouts reinforce the short-form group chat feel.
+- **Closed ecosystem hooks:** UI copy and API prompts emphasize session binding, watermarking, and the no-export policy from the patent narrative.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [Next.js 15 / App Router](https://nextjs.org/)
+- [Supabase](https://supabase.com/) for auth + profile context
+- [OpenAI](https://platform.openai.com/) chat completions for persona replies
+- [Tailwind (via PostCSS)](https://tailwindcss.com/) utility classes and [Lucide](https://lucide.dev/) icons
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Getting Started
 
-## Learn More
+1. Install dependencies  
+   ```bash
+   npm install
+   ```
+2. Provide environment variables:
+   - `OPENAI_API_KEY`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PROJECT_ID`
+3. Run the development server  
+   ```bash
+   npm run dev
+   ```
+4. Visit `http://localhost:3000/sms` for the SMS experience and `http://localhost:3000/library` to browse the Library (licensed personas).
 
-To learn more about Next.js, take a look at the following resources:
+### Implementation Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Front-end logic lives in `src/app/sms/page.tsx` (SMS) and `src/app/library/page.tsx` (Library persona catalog).
+- The `/api/groupchat` route fans out to OpenAI three times—once per celebrity—using persona-specific prompts that embed the patent requirements.
+- Supabase profiles capture the “founder DNA” context that each persona uses to customize feedback.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Patent Context
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This implementation mirrors the **“Popular-Figure SMS Short-Form Group Chat System”** provisional patent application by AiLi Corporation. Core behaviors such as the one-to-many architecture, tri-modal scoring, cryptographic logging, and persona vector distinctiveness are explicitly represented in both prompts and UX copy so engineering, product, and legal teams stay aligned while iterating.
