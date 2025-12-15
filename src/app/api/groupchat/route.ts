@@ -131,6 +131,15 @@ const normalizeHistoryForPersona = (
 
 export async function POST(req: Request) {
   try {
+    // Validate OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('🔥 OPENAI_API_KEY is not configured');
+      return NextResponse.json(
+        { error: 'OpenAI API key is not configured. Please set OPENAI_API_KEY in your environment variables.' },
+        { status: 500 }
+      );
+    }
+
     const { history, profile }: { history: HistoryMessage[]; profile?: ProfileSnapshot } = await req.json();
 
     if (!Array.isArray(history) || history.length === 0) {
@@ -166,7 +175,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ messages: Object.fromEntries(payload) });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('🔥 Group chat error', message);
+    console.error('🔥 Group chat error', message, error);
+
+    // Check if it's an OpenAI API error with specific status codes
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status?: number }).status;
+      
+      // Authentication errors (401)
+      if (status === 401) {
+        return NextResponse.json(
+          { error: 'Invalid OpenAI API key. Please check your OPENAI_API_KEY environment variable.' },
+          { status: 500 }
+        );
+      }
+      
+      // Rate limit errors (429)
+      if (status === 429) {
+        return NextResponse.json(
+          { error: 'OpenAI rate limit reached. Please try again in a minute.' },
+          { status: 429 }
+        );
+      }
+    }
+
     return NextResponse.json({ error: 'Failed to generate celebrity responses.' }, { status: 500 });
   }
 }

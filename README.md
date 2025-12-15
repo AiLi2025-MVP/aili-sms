@@ -22,12 +22,18 @@ This repo implements AiLi’s provisional-patent messaging lab: a closed SMS int
    ```bash
    npm install
    ```
-2. Provide environment variables:
-   - `OPENAI_API_KEY`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_SUPABASE_PROJECT_ID`
+2. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Then edit `.env.local` and provide your credentials:
+   - `OPENAI_API_KEY` - **Required** for celebrity persona responses. Get from [OpenAI Platform](https://platform.openai.com/api-keys)
+   - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+   - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+   - `NEXT_PUBLIC_SUPABASE_PROJECT_ID` - Your Supabase project ID
+   
+   **Note:** Without a valid `OPENAI_API_KEY`, the SMS feature will display an error: "OpenAI configuration issue."
 3. Run the development server  
    ```bash
    npm run dev

@@ -106,7 +106,10 @@ export default function SmsPage() {
         }),
       });
 
-      if (!res.ok) throw new Error('Celebrity switchboard glitch.');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Celebrity switchboard glitch.');
+      }
 
       const data = await res.json();
       const replies: Message[] = SMS_PERSONA_IDS.map((id) => {
@@ -126,12 +129,24 @@ export default function SmsPage() {
       }
     } catch (error) {
       console.error(error);
+      const errorMessage = error instanceof Error ? error.message : 'Line jammed. Send that take again in a minute.';
+      
+      // Provide user-friendly error messages
+      let displayMessage = errorMessage;
+      if (errorMessage.includes('OpenAI API key')) {
+        displayMessage = '⚠️ OpenAI configuration issue. Please contact support or check your API key setup.';
+      } else if (errorMessage.includes('rate limit')) {
+        displayMessage = '⏱️ Rate limit reached. Please wait a minute and try again.';
+      } else if (errorMessage.includes('Celebrity switchboard glitch')) {
+        displayMessage = 'Line jammed. Send that take again in a minute.';
+      }
+
       setMessages((prev) => [
         ...prev,
         {
           id: createId(),
           role: 'system',
-          content: 'Line jammed. Send that take again in a minute.',
+          content: displayMessage,
           timestamp: Date.now(),
         },
       ]);
