@@ -177,20 +177,25 @@ export async function POST(req: Request) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('🔥 Group chat error', message, error);
 
-    // Check if it's an OpenAI authentication error
-    if (error instanceof Error && (message.includes('Incorrect API key') || message.includes('invalid_api_key') || message.includes('401'))) {
-      return NextResponse.json(
-        { error: 'Invalid OpenAI API key. Please check your OPENAI_API_KEY environment variable.' },
-        { status: 500 }
-      );
-    }
-
-    // Check if it's an OpenAI rate limit error
-    if (error instanceof Error && (message.includes('Rate limit') || message.includes('429'))) {
-      return NextResponse.json(
-        { error: 'OpenAI rate limit reached. Please try again in a minute.' },
-        { status: 429 }
-      );
+    // Check if it's an OpenAI API error with specific status codes
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status?: number }).status;
+      
+      // Authentication errors (401)
+      if (status === 401) {
+        return NextResponse.json(
+          { error: 'Invalid OpenAI API key. Please check your OPENAI_API_KEY environment variable.' },
+          { status: 500 }
+        );
+      }
+      
+      // Rate limit errors (429)
+      if (status === 429) {
+        return NextResponse.json(
+          { error: 'OpenAI rate limit reached. Please try again in a minute.' },
+          { status: 429 }
+        );
+      }
     }
 
     return NextResponse.json({ error: 'Failed to generate celebrity responses.' }, { status: 500 });
